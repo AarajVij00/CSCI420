@@ -274,43 +274,30 @@ def main():
                 ##----------------------------------------
                 optimizer.zero_grad()
                 loss.backward()
-                optimizer.step()
-
-                ##------------------------------------------------------
-                ## get the predict result and then compute accuracy below
-                ## please refer to defined _compute_accuracy() above
-                ##------------------------------------------------------
-                _, y_pred = torch.max(output_y.data, 1)
-                # print(_compute_accuracy(y_pred, y_labels))
-                
+                optimizer.step()              
                 
                 
                 ##----------------------------------------------------------
                 ## loss.item() or use tensorboard to monitor the loss blow
                 ## if use loss.item(), you may use log txt files to save loss
                 ##----------------------------------------------------------
+                
+                ## After every fifty train batches, runs a short test on one batch of the test data for real-time results
                 if(batch_id%50 == 0):
                   print("Loss is", loss.item())
                   model.eval()
                   with torch.no_grad():
                     for batch_id, (x_batch,y_labels) in enumerate(test_loader):
                       x_batch, y_labels = Variable(x_batch).to(device), Variable(y_labels).to(device)
-                      ##------------------------------------
-                      ## write the predict result below
-                      ##------------------------------------
                       output_y = model(x_batch)
 
-                      ##--------------------------------------------------
-                      ## write code for computing the accuracy below
-                      ## please refer to defined _compute_accuracy() above
-                      ##---------------------------------------------------
                       _, y_pred = torch.max(output_y.data, 1)
                       print("Test accuracy is " , _compute_accuracy(y_pred, y_labels))
                       model = model.train()
-                      break;
+                      break; #just testing on one batch
 
             ## -------------------------------------------------------------------
-            ## save checkpoint below (optional), every "epoch" save one checkpoint
+            ## After every Epoch, runs a full accuracy test on the test dataset to detect overfitting
             ## -------------------------------------------------------------------
             
             print("\nEpoch ", epoch, " results:" )
@@ -334,6 +321,7 @@ def main():
 
     ##------------------------------------
     ##    model testing code below
+    ##    Prints full testing results on the test data after training is complete
     ##------------------------------------
     print("TEST ACCURACY")
     model.eval()
